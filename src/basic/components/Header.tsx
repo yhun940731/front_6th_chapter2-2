@@ -4,16 +4,21 @@ import { CartItem } from '../../types';
 
 type THeaderProps = {
   isAdmin: boolean;
+  cart: CartItem[];
   setIsAdmin: (isAdmin: boolean) => void;
   setDebouncedSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-  cart: CartItem[];
-  totalItemCount: number;
 };
 
 const Header = (props: THeaderProps) => {
-  const { isAdmin, setIsAdmin, setDebouncedSearchTerm, cart, totalItemCount } = props;
+  const { isAdmin, cart, setIsAdmin, setDebouncedSearchTerm } = props;
 
+  const [totalItemCount, setTotalItemCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    setTotalItemCount(count);
+  }, [cart]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
