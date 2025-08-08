@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { CartItem as TCartItem } from '../../types';
 
 type TCartItemProps = {
