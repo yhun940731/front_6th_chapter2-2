@@ -1,28 +1,39 @@
-type ProductFormData = {
-  name: string;
-  price: number;
-  stock: number;
-  description: string;
-  discounts: Array<{ quantity: number; rate: number }>;
-};
+import { useAtom, useSetAtom } from 'jotai';
 
-type ProductFormProps = {
-  productForm: ProductFormData;
-  setProductForm: React.Dispatch<React.SetStateAction<ProductFormData>>;
-  editingProduct: string | null;
-  onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
-};
+import {
+  pushNotificationAtom,
+  productFormAtom,
+  editingProductIdAtom,
+  showProductFormAtom,
+  addProductAtom,
+  updateProductAtom,
+} from '../../store/atoms';
 
-export default function ProductForm({
-  productForm,
-  setProductForm,
-  editingProduct,
-  onSubmit,
-  onCancel,
-  addNotification,
-}: ProductFormProps) {
+export default function ProductForm() {
+  const [productForm, setProductForm] = useAtom(productFormAtom);
+  const [editingProduct] = useAtom(editingProductIdAtom);
+
+  const pushNotification = useSetAtom(pushNotificationAtom);
+  const setShowProductForm = useSetAtom(showProductFormAtom);
+  const addProduct = useSetAtom(addProductAtom);
+  const updateProduct = useSetAtom(updateProductAtom);
+
+  const onCancel = () => {
+    setShowProductForm(false);
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingProduct && editingProduct !== 'new') {
+      updateProduct({ productId: editingProduct, updates: productForm });
+      pushNotification({ message: '상품이 수정되었습니다.', type: 'success' });
+    } else {
+      addProduct({ ...productForm, discounts: productForm.discounts });
+      pushNotification({ message: '상품이 추가되었습니다.', type: 'success' });
+    }
+    setShowProductForm(false);
+  };
+
   return (
     <div className='p-6 border-t border-gray-200 bg-gray-50'>
       <form onSubmit={onSubmit} className='space-y-4'>
@@ -68,7 +79,7 @@ export default function ProductForm({
                 if (value === '') {
                   setProductForm({ ...productForm, price: 0 });
                 } else if (parseInt(value) < 0) {
-                  addNotification('가격은 0보다 커야 합니다', 'error');
+                  pushNotification({ message: '가격은 0보다 커야 합니다', type: 'error' });
                   setProductForm({ ...productForm, price: 0 });
                 }
               }}
@@ -96,10 +107,13 @@ export default function ProductForm({
                 if (value === '') {
                   setProductForm({ ...productForm, stock: 0 });
                 } else if (parseInt(value) < 0) {
-                  addNotification('재고는 0보다 커야 합니다', 'error');
+                  pushNotification({ message: '재고는 0보다 커야 합니다', type: 'error' });
                   setProductForm({ ...productForm, stock: 0 });
                 } else if (parseInt(value) > 9999) {
-                  addNotification('재고는 9999개를 초과할 수 없습니다', 'error');
+                  pushNotification({
+                    message: '재고는 9999개를 초과할 수 없습니다',
+                    type: 'error',
+                  });
                   setProductForm({ ...productForm, stock: 9999 });
                 }
               }}

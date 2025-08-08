@@ -25,9 +25,11 @@ type TPaymentSectionProps = {
 
 export default function PaymentSection(props: TPaymentSectionProps) {
   const { addNotification } = props;
+
   const [cart] = useAtom(cartAtom);
   const [coupons] = useAtom(couponsAtom);
   const [selectedCoupon, setSelectedCoupon] = useAtom(selectedCouponAtom);
+
   const updateQuantity = useSetAtom(updateQuantityAtom);
   const removeFromCart = useSetAtom(removeFromCartAtom);
   const clearCart = useSetAtom(clearCartAtom);
@@ -49,7 +51,7 @@ export default function PaymentSection(props: TPaymentSectionProps) {
       setSelectedCoupon(coupon);
       addNotification('쿠폰이 적용되었습니다.', 'success');
     },
-    [addNotification, cart, setSelectedCoupon],
+    [cart, addNotification, setSelectedCoupon],
   );
 
   const completeOrder = useCallback(() => {
@@ -59,14 +61,14 @@ export default function PaymentSection(props: TPaymentSectionProps) {
     setSelectedCoupon(null);
   }, [addNotification, clearCart]);
 
-  const totals = calculateCartTotal(cart, selectedCoupon);
-
   const calculateItemTotal = useCallback(
     (item: CartItem): number => {
       return calculateSingleItemTotal(item, cart);
     },
     [cart],
   );
+
+  const totals = calculateCartTotal(cart, selectedCoupon);
 
   return (
     <div className='sticky top-24 space-y-4'>

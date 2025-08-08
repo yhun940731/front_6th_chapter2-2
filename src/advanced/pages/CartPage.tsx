@@ -25,6 +25,7 @@ import { debouncedSearchTermAtom, notificationsAtom } from '../store/atoms';
 export function CartPage() {
   const [debouncedSearchTerm] = useAtom(debouncedSearchTermAtom);
   const [, setNotifications] = useAtom(notificationsAtom);
+
   const addNotification = (message: string, type: 'error' | 'success' | 'warning' = 'success') => {
     const id = Date.now().toString();
     setNotifications((prev) => [...prev, { id, message, type }]);

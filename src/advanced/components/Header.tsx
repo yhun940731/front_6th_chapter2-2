@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { cartAtom, debouncedSearchTermAtom, isAdminAtom } from '../store/atoms';
 
@@ -8,12 +8,11 @@ const Header = () => {
   const [isAdmin, setIsAdmin] = useAtom(isAdminAtom);
   const [, setDebouncedSearchTerm] = useAtom(debouncedSearchTermAtom);
 
-  const [totalItemCount, setTotalItemCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
+  const totalItemCount = useMemo(() => {
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    setTotalItemCount(count);
+    return count;
   }, [cart]);
 
   useEffect(() => {

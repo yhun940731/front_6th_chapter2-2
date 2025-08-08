@@ -1,154 +1,15 @@
-import { useAtom, useSetAtom } from 'jotai';
-import React, { useState, useCallback } from 'react';
+import { useAtom } from 'jotai';
+import { useState } from 'react';
 
-import type { Product } from '../../types';
 import CouponManagement from '../components/admin/CouponManagement';
 import ProductManagement from '../components/admin/ProductManagement';
-import {
-  addCouponAtom,
-  couponsAtom,
-  deleteProductAtom,
-  notificationsAtom,
-  productsAtom,
-  removeCouponAtom,
-  updateProductAtom,
-  addProductAtom,
-} from '../store/atoms';
-import { getRemainingStock } from '../utils/stock.ts';
-
-interface ProductWithUI extends Product {
-  description?: string;
-  isRecommended?: boolean;
-}
-
-// Notifications are handled via notificationsAtom
+import { couponsAtom, productsAtom } from '../store/atoms';
 
 export function AdminPage() {
-  const [coupons] = useAtom(couponsAtom);
-  const [products] = useAtom(productsAtom);
-  const addProduct = useSetAtom(addProductAtom);
-  const updateProduct = useSetAtom(updateProductAtom);
-  const deleteProduct = useSetAtom(deleteProductAtom);
-  const addCoupon = useSetAtom(addCouponAtom);
-  const removeCoupon = useSetAtom(removeCouponAtom);
-  const [, setNotifications] = useAtom(notificationsAtom);
+  useAtom(couponsAtom);
+  useAtom(productsAtom);
 
-  const [showCouponForm, setShowCouponForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'products' | 'coupons'>('products');
-  const [showProductForm, setShowProductForm] = useState(false);
-
-  // Admin
-  const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const [productForm, setProductForm] = useState({
-    name: '',
-    price: 0,
-    stock: 0,
-    description: '',
-    discounts: [] as Array<{ quantity: number; rate: number }>,
-  });
-
-  const [couponForm, setCouponForm] = useState({
-    name: '',
-    code: '',
-    discountType: 'amount' as 'amount' | 'percentage',
-    discountValue: 0,
-  });
-
-  const formatPrice = (price: number, productId?: string): string => {
-    if (productId) {
-      const product = products.find((p) => p.id === productId);
-      if (product && getRemainingStock(product, []) <= 0) {
-        return 'SOLD OUT';
-      }
-    }
-
-    return `${price.toLocaleString()}원`;
-  };
-
-  const addNotification = useCallback(
-    (message: string, type: 'error' | 'success' | 'warning' = 'success') => {
-      const id = Date.now().toString();
-      setNotifications((prev) => [...prev, { id, message, type }]);
-
-      setTimeout(() => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
-      }, 3000);
-    },
-    [],
-  );
-
-  const handleAddProduct = () => {
-    setEditingProduct('new');
-    setProductForm({ name: '', price: 0, stock: 0, description: '', discounts: [] });
-    setShowProductForm(true);
-  };
-
-  const handleDeleteProduct = (productId: string) => {
-    deleteProduct(productId);
-    addNotification('상품이 삭제되었습니다.', 'success');
-  };
-
-  const handleCancelProduct = () => {
-    setEditingProduct(null);
-    setProductForm({
-      name: '',
-      price: 0,
-      stock: 0,
-      description: '',
-      discounts: [],
-    });
-    setShowProductForm(false);
-  };
-
-  const handleDeleteCoupon = (couponCode: string) => {
-    removeCoupon(couponCode);
-    addNotification('쿠폰이 삭제되었습니다.', 'success');
-  };
-
-  const handleProductSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingProduct && editingProduct !== 'new') {
-      updateProduct({ productId: editingProduct, updates: productForm });
-      addNotification('상품이 수정되었습니다.', 'success');
-      setEditingProduct(null);
-    } else {
-      addProduct({ ...productForm, discounts: productForm.discounts });
-      addNotification('상품이 추가되었습니다.', 'success');
-    }
-    setProductForm({ name: '', price: 0, stock: 0, description: '', discounts: [] });
-    setEditingProduct(null);
-    setShowProductForm(false);
-  };
-
-  const handleCouponSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // check duplication manually
-    if (coupons.some((c) => c.code === couponForm.code)) {
-      addNotification('이미 존재하는 쿠폰 코드입니다.', 'error');
-    } else {
-      addCoupon(couponForm);
-      addNotification('쿠폰이 추가되었습니다.', 'success');
-    }
-    setCouponForm({
-      name: '',
-      code: '',
-      discountType: 'amount',
-      discountValue: 0,
-    });
-    setShowCouponForm(false);
-  };
-
-  const startEditProduct = (product: ProductWithUI) => {
-    setEditingProduct(product.id);
-    setProductForm({
-      name: product.name,
-      price: product.price,
-      stock: product.stock,
-      description: product.description || '',
-      discounts: product.discounts || [],
-    });
-    setShowProductForm(true);
-  };
 
   return (
     <div className='max-w-6xl mx-auto'>
@@ -181,34 +42,7 @@ export function AdminPage() {
         </nav>
       </div>
 
-      {activeTab === 'products' ? (
-        <ProductManagement
-          products={products}
-          showProductForm={showProductForm}
-          editingProduct={editingProduct}
-          productForm={productForm}
-          setProductForm={setProductForm}
-          formatPrice={formatPrice}
-          onAddProduct={handleAddProduct}
-          onEditProduct={startEditProduct}
-          onDeleteProduct={handleDeleteProduct}
-          onSubmitProduct={handleProductSubmit}
-          onCancelProduct={handleCancelProduct}
-          addNotification={addNotification}
-        />
-      ) : (
-        <CouponManagement
-          coupons={coupons}
-          showCouponForm={showCouponForm}
-          couponForm={couponForm}
-          setCouponForm={setCouponForm}
-          onAddCoupon={() => setShowCouponForm(!showCouponForm)}
-          onDeleteCoupon={handleDeleteCoupon}
-          onSubmitCoupon={handleCouponSubmit}
-          onCancelCoupon={() => setShowCouponForm(false)}
-          addNotification={addNotification}
-        />
-      )}
+      {activeTab === 'products' ? <ProductManagement /> : <CouponManagement />}
     </div>
   );
 }

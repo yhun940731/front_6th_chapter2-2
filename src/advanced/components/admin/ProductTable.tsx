@@ -1,18 +1,49 @@
+import { useAtom, useSetAtom } from 'jotai';
+
 import { ProductWithUI } from '../../../types';
+import {
+  productsAtom,
+  deleteProductAtom,
+  pushNotificationAtom,
+  showProductFormAtom,
+  editingProductIdAtom,
+  productFormAtom,
+} from '../../store/atoms';
 
-type ProductTableProps = {
-  products: ProductWithUI[];
-  formatPrice: (price: number, productId?: string) => string;
-  onEditProduct: (product: ProductWithUI) => void;
-  onDeleteProduct: (productId: string) => void;
-};
+export default function ProductTable() {
+  const [products] = useAtom(productsAtom);
 
-export default function ProductTable({
-  products,
-  formatPrice,
-  onEditProduct,
-  onDeleteProduct,
-}: ProductTableProps) {
+  const deleteProduct = useSetAtom(deleteProductAtom);
+  const pushNotification = useSetAtom(pushNotificationAtom);
+  const setShowProductForm = useSetAtom(showProductFormAtom);
+  const setEditingProductId = useSetAtom(editingProductIdAtom);
+  const setProductForm = useSetAtom(productFormAtom);
+
+  const formatPrice = (price: number, productId?: string): string => {
+    if (productId) {
+      const product = products.find((p) => p.id === productId);
+      if (product && product.stock <= 0) return 'SOLD OUT';
+    }
+    return `${price.toLocaleString()}원`;
+  };
+
+  const onEditProduct = (product: ProductWithUI) => {
+    setEditingProductId(product.id);
+    setProductForm({
+      name: product.name,
+      price: product.price,
+      stock: product.stock,
+      description: product.description || '',
+      discounts: product.discounts || [],
+    });
+    setShowProductForm(true);
+  };
+
+  const onDeleteProduct = (productId: string) => {
+    deleteProduct(productId);
+    pushNotification({ message: '상품이 삭제되었습니다.', type: 'success' });
+  };
+
   return (
     <div className='overflow-x-auto'>
       <table className='w-full'>

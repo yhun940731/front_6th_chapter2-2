@@ -1,12 +1,26 @@
-import { Coupon } from '../../../types';
+import { useAtom, useSetAtom } from 'jotai';
 
-type CouponListProps = {
-  coupons: Coupon[];
-  onDeleteCoupon: (couponCode: string) => void;
-  onAddCoupon: () => void;
-};
+import {
+  couponsAtom,
+  removeCouponAtom,
+  pushNotificationAtom,
+  showCouponFormAtom,
+} from '../../store/atoms';
 
-export default function CouponList({ coupons, onDeleteCoupon, onAddCoupon }: CouponListProps) {
+export default function CouponList() {
+  const [coupons] = useAtom(couponsAtom);
+
+  const removeCoupon = useSetAtom(removeCouponAtom);
+  const pushNotification = useSetAtom(pushNotificationAtom);
+  const setShowCouponForm = useSetAtom(showCouponFormAtom);
+
+  const onDeleteCoupon = (code: string) => {
+    removeCoupon(code);
+    pushNotification({ message: '쿠폰이 삭제되었습니다.', type: 'success' });
+  };
+
+  const onAddCoupon = () => setShowCouponForm(true);
+
   return (
     <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
       {coupons.map((coupon) => (
