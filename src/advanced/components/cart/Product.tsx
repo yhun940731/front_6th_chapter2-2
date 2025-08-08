@@ -1,4 +1,4 @@
-import { ProductWithUI } from '../../types';
+import { ProductWithUI } from '../../../types';
 
 type TProductProps = {
   product: ProductWithUI;

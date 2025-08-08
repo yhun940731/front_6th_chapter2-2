@@ -1,8 +1,8 @@
 import { useAtom } from 'jotai';
 
-import Cart from './Cart';
-import CouponSection from '../components/payment/CouponSection';
-import PaymentSummary from '../components/payment/PaymentSummary';
+import Cart from '../components/cart/Cart';
+import CouponSection from '../components/cart/CouponSection';
+import PaymentSummary from '../components/cart/PaymentSummary';
 import { cartAtom } from '../store/atoms';
 
 export default function PaymentSection() {

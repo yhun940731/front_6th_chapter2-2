@@ -1,7 +1,8 @@
 import { useAtom, useSetAtom } from 'jotai';
 
 import { cartAtom, couponsAtom, pushNotificationAtom, selectedCouponAtom } from '../../store/atoms';
-import { calculateCartTotal, validateCouponUsage } from '../../utils/PaymentCalculator';
+import { calculateCartTotal, validateCouponUsage } from '../../utils/calculator';
+import { formatPrice } from '../../utils/formatters';
 
 export default function CouponSection() {
   const [coupons] = useAtom(couponsAtom);
@@ -46,7 +47,7 @@ export default function CouponSection() {
             <option key={coupon.code} value={coupon.code}>
               {coupon.name} (
               {coupon.discountType === 'amount'
-                ? `${coupon.discountValue.toLocaleString()}원`
+                ? `${formatPrice(coupon.discountValue)}`
                 : `${coupon.discountValue}%`}
               )
             </option>

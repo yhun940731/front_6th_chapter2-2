@@ -1,14 +1,15 @@
 import { useAtom, useSetAtom } from 'jotai';
 
-import { CartItem as TCartItem } from '../../types';
+import { CartItem as TCartItem } from '../../../types';
 import {
   cartAtom,
   productsAtom,
   pushNotificationAtom,
   removeFromCartAtom,
   updateQuantityAtom,
-} from '../store/atoms';
-import { calculateItemTotal as calculateSingleItemTotal } from '../utils/PaymentCalculator';
+} from '../../store/atoms';
+import { formatPrice, formatPercentage } from '../../utils/formatters';
+import { calculateItemTotal as calculateSingleItemTotal } from '../../utils/calculator';
 
 type TCartItemProps = {
   item: TCartItem;
@@ -82,11 +83,11 @@ export default function CartItem(props: TCartItemProps) {
         </div>
         <div className='text-right'>
           {hasDiscount && (
-            <span className='text-xs text-red-500 font-medium block'>-{discountRate}%</span>
+            <span className='text-xs text-red-500 font-medium block'>
+              -{formatPercentage(discountRate / 100)}
+            </span>
           )}
-          <p className='text-sm font-medium text-gray-900'>
-            {Math.round(itemTotal).toLocaleString()}원
-          </p>
+          <p className='text-sm font-medium text-gray-900'>{formatPrice(Math.round(itemTotal))}</p>
         </div>
       </div>
     </div>

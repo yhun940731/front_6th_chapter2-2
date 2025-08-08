@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 
-import CartItem from '../components/CartItem';
-import { cartAtom } from '../store/atoms';
+import CartItem from './CartItem';
+import { cartAtom } from '../../store/atoms';
 
 export default function Cart() {
   const [cart] = useAtom(cartAtom);

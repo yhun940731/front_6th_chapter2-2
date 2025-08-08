@@ -1,8 +1,9 @@
 import { useAtom, useSetAtom } from 'jotai';
 
 import { ProductWithUI } from '../../types';
-import Product from '../components/Product';
+import Product from '../components/cart/Product.tsx';
 import { addToCartAtom, cartAtom, productsAtom, pushNotificationAtom } from '../store/atoms';
+import { formatPrice as fmtPrice } from '../utils/formatters';
 import { getRemainingStock } from '../utils/stock.ts';
 
 type TProductListProps = {
@@ -18,7 +19,7 @@ export default function ProductList(props: TProductListProps) {
   const addToCart = useSetAtom(addToCartAtom);
   const pushNotification = useSetAtom(pushNotificationAtom);
 
-  const formatPrice = (price: number, productId?: string): string => {
+  const displayPrice = (price: number, productId?: string): string => {
     if (productId) {
       const product = products.find((p) => p.id === productId);
       if (product && getRemainingStock(product, cart) <= 0) {
@@ -26,7 +27,7 @@ export default function ProductList(props: TProductListProps) {
       }
     }
 
-    return `₩${price.toLocaleString()}`;
+    return fmtPrice(price);
   };
 
   const handleAddToCart = (product: ProductWithUI) => {
@@ -64,7 +65,7 @@ export default function ProductList(props: TProductListProps) {
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
           {filteredProducts.map((product) => {
             const remainingStock = getRemainingStock(product, cart);
-            const price = formatPrice(product.price, product.id);
+            const price = displayPrice(product.price, product.id);
 
             return (
               <Product

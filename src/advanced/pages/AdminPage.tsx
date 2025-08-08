@@ -1,8 +1,8 @@
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 
-import CouponManagement from '../components/admin/CouponManagement';
-import ProductManagement from '../components/admin/ProductManagement';
+import CouponManagement from '../layouts/CouponManagement';
+import ProductManagement from '../layouts/ProductManagement';
 import { couponsAtom, productsAtom } from '../store/atoms';
 
 export function AdminPage() {

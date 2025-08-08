@@ -6,7 +6,8 @@ import {
   pushNotificationAtom,
   selectedCouponAtom,
 } from '../../store/atoms';
-import { calculateCartTotal } from '../../utils/PaymentCalculator';
+import { calculateCartTotal } from '../../utils/calculator';
+import { formatPrice } from '../../utils/formatters';
 
 export default function PaymentSummary() {
   const [cart] = useAtom(cartAtom);
@@ -35,18 +36,18 @@ export default function PaymentSummary() {
       <div className='space-y-2 text-sm'>
         <div className='flex justify-between'>
           <span className='text-gray-600'>상품 금액</span>
-          <span className='font-medium'>{totals.totalBeforeDiscount.toLocaleString()}원</span>
+          <span className='font-medium'>{formatPrice(totals.totalBeforeDiscount)}</span>
         </div>
         {hasDiscount && (
           <div className='flex justify-between text-red-500'>
             <span>할인 금액</span>
-            <span>-{discountAmount.toLocaleString()}원</span>
+            <span>-{formatPrice(discountAmount)}</span>
           </div>
         )}
         <div className='flex justify-between py-2 border-t border-gray-200'>
           <span className='font-semibold'>결제 예정 금액</span>
           <span className='font-bold text-lg text-gray-900'>
-            {totals.totalAfterDiscount.toLocaleString()}원
+            {formatPrice(totals.totalAfterDiscount)}
           </span>
         </div>
       </div>
@@ -55,7 +56,7 @@ export default function PaymentSummary() {
         onClick={onCompleteOrder}
         className='w-full mt-4 py-3 bg-yellow-400 text-gray-900 rounded-md font-medium hover:bg-yellow-500 transition-colors'
       >
-        {totals.totalAfterDiscount.toLocaleString()}원 결제하기
+        {formatPrice(totals.totalAfterDiscount)} 결제하기
       </button>
 
       <div className='mt-3 text-xs text-gray-500 text-center'>

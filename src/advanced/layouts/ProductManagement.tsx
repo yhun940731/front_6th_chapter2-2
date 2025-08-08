@@ -1,8 +1,8 @@
 import { useAtom, useSetAtom } from 'jotai';
 
-import ProductForm from './ProductForm';
-import ProductTable from './ProductTable';
-import { showProductFormAtom, editingProductIdAtom, productFormAtom } from '../../store/atoms';
+import ProductForm from '../components/admin/ProductForm';
+import ProductTable from '../components/admin/ProductTable';
+import { showProductFormAtom, editingProductIdAtom, productFormAtom } from '../store/atoms';
 
 export default function ProductManagement() {
   const [showProductForm, setShowProductForm] = useAtom(showProductFormAtom);

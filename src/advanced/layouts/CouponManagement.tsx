@@ -1,8 +1,8 @@
 import { useAtom } from 'jotai';
 
-import CouponForm from './CouponForm';
-import CouponList from './CouponList';
-import { showCouponFormAtom } from '../../store/atoms';
+import CouponForm from '../components/admin/CouponForm';
+import CouponList from '../components/admin/CouponList';
+import { showCouponFormAtom } from '../store/atoms';
 
 export default function CouponManagement() {
   const [showCouponForm] = useAtom(showCouponFormAtom);
