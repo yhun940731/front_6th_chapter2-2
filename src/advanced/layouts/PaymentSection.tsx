@@ -1,96 +1,21 @@
-import { useAtom, useSetAtom } from 'jotai';
-import { useCallback } from 'react';
+import { useAtom } from 'jotai';
 
 import Cart from './Cart';
-import { CartItem, Coupon } from '../../types';
 import CouponSection from '../components/payment/CouponSection';
 import PaymentSummary from '../components/payment/PaymentSummary';
-import {
-  cartAtom,
-  clearCartAtom,
-  couponsAtom,
-  selectedCouponAtom,
-  updateQuantityAtom,
-  removeFromCartAtom,
-} from '../store/atoms';
-import {
-  calculateCartTotal,
-  calculateItemTotal as calculateSingleItemTotal,
-  validateCouponUsage,
-} from '../utils/PaymentCalculator';
+import { cartAtom } from '../store/atoms';
 
-type TPaymentSectionProps = {
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
-};
-
-export default function PaymentSection(props: TPaymentSectionProps) {
-  const { addNotification } = props;
-
+export default function PaymentSection() {
   const [cart] = useAtom(cartAtom);
-  const [coupons] = useAtom(couponsAtom);
-  const [selectedCoupon, setSelectedCoupon] = useAtom(selectedCouponAtom);
-
-  const updateQuantity = useSetAtom(updateQuantityAtom);
-  const removeFromCart = useSetAtom(removeFromCartAtom);
-  const clearCart = useSetAtom(clearCartAtom);
-
-  const applyCoupon = useCallback(
-    (coupon: Coupon | null) => {
-      if (!coupon) {
-        setSelectedCoupon(null);
-        return;
-      }
-
-      const currentTotal = calculateCartTotal(cart).totalAfterDiscount;
-
-      if (!validateCouponUsage(coupon, currentTotal)) {
-        addNotification('percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.', 'error');
-        return;
-      }
-
-      setSelectedCoupon(coupon);
-      addNotification('쿠폰이 적용되었습니다.', 'success');
-    },
-    [cart, addNotification, setSelectedCoupon],
-  );
-
-  const completeOrder = useCallback(() => {
-    const orderNumber = `ORD-${Date.now()}`;
-    addNotification(`주문이 완료되었습니다. 주문번호: ${orderNumber}`, 'success');
-    clearCart();
-    setSelectedCoupon(null);
-  }, [addNotification, clearCart]);
-
-  const calculateItemTotal = useCallback(
-    (item: CartItem): number => {
-      return calculateSingleItemTotal(item, cart);
-    },
-    [cart],
-  );
-
-  const totals = calculateCartTotal(cart, selectedCoupon);
 
   return (
     <div className='sticky top-24 space-y-4'>
-      <Cart
-        cart={cart}
-        updateQuantity={(productId, newQuantity) =>
-          updateQuantity({ productId, quantity: newQuantity })
-        }
-        removeFromCart={removeFromCart}
-        calculateItemTotal={calculateItemTotal}
-        addNotification={addNotification}
-      />
+      <Cart />
 
       {cart.length > 0 && (
         <>
-          <CouponSection
-            coupons={coupons}
-            selectedCoupon={selectedCoupon}
-            onCouponSelect={applyCoupon}
-          />
-
-          <PaymentSummary totals={totals} onCompleteOrder={completeOrder} />
+          <CouponSection />
+          <PaymentSummary />
         </>
       )}
     </div>

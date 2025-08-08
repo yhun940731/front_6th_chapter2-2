@@ -1,16 +1,50 @@
+import { useAtom, useSetAtom } from 'jotai';
+
 import { CartItem as TCartItem } from '../../types';
+import {
+  cartAtom,
+  productsAtom,
+  pushNotificationAtom,
+  removeFromCartAtom,
+  updateQuantityAtom,
+} from '../store/atoms';
+import { calculateItemTotal as calculateSingleItemTotal } from '../utils/PaymentCalculator';
 
 type TCartItemProps = {
   item: TCartItem;
-  hasDiscount: boolean;
-  discountRate: number;
-  itemTotal: number;
-  handleClickQuantity: (productId: string, quantity: number) => void;
-  removeFromCart: (productId: string) => void;
 };
 
 export default function CartItem(props: TCartItemProps) {
-  const { item, hasDiscount, discountRate, itemTotal, handleClickQuantity, removeFromCart } = props;
+  const { item } = props;
+  const [cart] = useAtom(cartAtom);
+  const [products] = useAtom(productsAtom);
+  const updateQuantity = useSetAtom(updateQuantityAtom);
+  const removeFromCart = useSetAtom(removeFromCartAtom);
+  const pushNotification = useSetAtom(pushNotificationAtom);
+
+  const itemTotal = calculateSingleItemTotal(item, cart);
+  const originalPrice = item.product.price * item.quantity;
+  const hasDiscount = itemTotal < originalPrice;
+  const discountRate = hasDiscount ? Math.round((1 - itemTotal / originalPrice) * 100) : 0;
+
+  const handleClickQuantity = (productId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+
+    const product = products.find((p) => p.id === productId);
+    if (!product) return;
+
+    const maxStock = product.stock;
+
+    if (newQuantity > maxStock) {
+      pushNotification({ message: `재고는 ${maxStock}개까지만 있습니다.`, type: 'error' });
+      return;
+    }
+
+    updateQuantity({ productId, quantity: newQuantity });
+  };
 
   return (
     <div className='border-b pb-3 last:border-b-0'>

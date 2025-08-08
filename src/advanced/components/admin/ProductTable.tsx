@@ -9,6 +9,7 @@ import {
   editingProductIdAtom,
   productFormAtom,
 } from '../../store/atoms';
+import { formatPrice as fmtPrice } from '../../utils/formatters';
 
 export default function ProductTable() {
   const [products] = useAtom(productsAtom);
@@ -24,7 +25,7 @@ export default function ProductTable() {
       const product = products.find((p) => p.id === productId);
       if (product && product.stock <= 0) return 'SOLD OUT';
     }
-    return `${price.toLocaleString()}원`;
+    return fmtPrice(price);
   };
 
   const onEditProduct = (product: ProductWithUI) => {

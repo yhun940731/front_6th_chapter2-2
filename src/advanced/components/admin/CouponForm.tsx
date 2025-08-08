@@ -7,6 +7,7 @@ import {
   addCouponAtom,
   couponsAtom,
 } from '../../store/atoms';
+import { parseIntOrZero } from '../../utils/validators';
 
 export default function CouponForm() {
   const [couponForm, setCouponForm] = useAtom(couponFormAtom);
@@ -80,15 +81,9 @@ export default function CouponForm() {
             <input
               type='text'
               value={couponForm.discountValue === 0 ? '' : couponForm.discountValue}
-              onChange={(e) => {
-                const { value } = e.target;
-                if (value === '' || /^\d+$/.test(value)) {
-                  setCouponForm({
-                    ...couponForm,
-                    discountValue: value === '' ? 0 : parseInt(value),
-                  });
-                }
-              }}
+              onChange={(e) =>
+                setCouponForm({ ...couponForm, discountValue: parseIntOrZero(e.target.value) })
+              }
               onBlur={(e) => {
                 const value = parseInt(e.target.value) || 0;
                 if (couponForm.discountType === 'percentage') {

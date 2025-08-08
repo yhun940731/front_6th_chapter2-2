@@ -2,19 +2,21 @@ import { useAtom, useSetAtom } from 'jotai';
 
 import { ProductWithUI } from '../../types';
 import Product from '../components/Product';
-import { addToCartAtom, cartAtom, productsAtom } from '../store/atoms';
+import { addToCartAtom, cartAtom, productsAtom, pushNotificationAtom } from '../store/atoms';
 import { getRemainingStock } from '../utils/stock.ts';
 
 type TProductListProps = {
   debouncedSearchTerm: string;
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
 };
 
 export default function ProductList(props: TProductListProps) {
-  const { debouncedSearchTerm, addNotification } = props;
-  const [products] = useAtom(productsAtom);
+  const { debouncedSearchTerm } = props;
+
   const [cart] = useAtom(cartAtom);
+  const [products] = useAtom(productsAtom);
+
   const addToCart = useSetAtom(addToCartAtom);
+  const pushNotification = useSetAtom(pushNotificationAtom);
 
   const formatPrice = (price: number, productId?: string): string => {
     if (productId) {
@@ -30,12 +32,12 @@ export default function ProductList(props: TProductListProps) {
   const handleAddToCart = (product: ProductWithUI) => {
     try {
       addToCart(product);
-      addNotification('장바구니에 담았습니다', 'success');
+      pushNotification({ message: '장바구니에 담았습니다', type: 'success' });
     } catch (error) {
-      addNotification(
-        error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
-        'error',
-      );
+      pushNotification({
+        message: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
+        type: 'error',
+      });
     }
   };
 

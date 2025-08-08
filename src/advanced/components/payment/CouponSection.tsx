@@ -1,19 +1,32 @@
-import { Coupon } from '../../../types';
+import { useAtom, useSetAtom } from 'jotai';
 
-type CouponSectionProps = {
-  coupons: Coupon[];
-  selectedCoupon: Coupon | null;
-  onCouponSelect: (coupon: Coupon | null) => void;
-};
+import { cartAtom, couponsAtom, pushNotificationAtom, selectedCouponAtom } from '../../store/atoms';
+import { calculateCartTotal, validateCouponUsage } from '../../utils/PaymentCalculator';
 
-export default function CouponSection({
-  coupons,
-  selectedCoupon,
-  onCouponSelect,
-}: CouponSectionProps) {
+export default function CouponSection() {
+  const [coupons] = useAtom(couponsAtom);
+  const [selectedCoupon, setSelectedCoupon] = useAtom(selectedCouponAtom);
+  const [cart] = useAtom(cartAtom);
+
+  const pushNotification = useSetAtom(pushNotificationAtom);
+
   const handleCouponChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const coupon = coupons.find((c) => c.code === e.target.value);
-    onCouponSelect(coupon || null);
+    const coupon = coupons.find((c) => c.code === e.target.value) || null;
+    if (!coupon) {
+      setSelectedCoupon(null);
+      return;
+    }
+
+    const currentTotal = calculateCartTotal(cart).totalAfterDiscount;
+    if (!validateCouponUsage(coupon, currentTotal)) {
+      pushNotification({
+        message: 'percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.',
+        type: 'error',
+      });
+      return;
+    }
+    setSelectedCoupon(coupon);
+    pushNotification({ message: '쿠폰이 적용되었습니다.', type: 'success' });
   };
 
   return (

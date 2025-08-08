@@ -1,13 +1,33 @@
-import { PaymentTotal } from '../../utils/PaymentCalculator';
+import { useAtom, useSetAtom } from 'jotai';
 
-type PaymentSummaryProps = {
-  totals: PaymentTotal;
-  onCompleteOrder: () => void;
-};
+import {
+  cartAtom,
+  clearCartAtom,
+  pushNotificationAtom,
+  selectedCouponAtom,
+} from '../../store/atoms';
+import { calculateCartTotal } from '../../utils/PaymentCalculator';
 
-export default function PaymentSummary({ totals, onCompleteOrder }: PaymentSummaryProps) {
+export default function PaymentSummary() {
+  const [cart] = useAtom(cartAtom);
+  const [selectedCoupon, setSelectedCoupon] = useAtom(selectedCouponAtom);
+
+  const clearCart = useSetAtom(clearCartAtom);
+  const pushNotification = useSetAtom(pushNotificationAtom);
+
+  const totals = calculateCartTotal(cart, selectedCoupon || undefined);
   const discountAmount = totals.totalBeforeDiscount - totals.totalAfterDiscount;
   const hasDiscount = discountAmount > 0;
+
+  const onCompleteOrder = () => {
+    const orderNumber = `ORD-${Date.now()}`;
+    pushNotification({
+      message: `주문이 완료되었습니다. 주문번호: ${orderNumber}`,
+      type: 'success',
+    });
+    clearCart();
+    setSelectedCoupon(null);
+  };
 
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>

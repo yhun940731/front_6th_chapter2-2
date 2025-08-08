@@ -8,6 +8,7 @@ import {
   addProductAtom,
   updateProductAtom,
 } from '../../store/atoms';
+import { parseIntOrZero, isDigitsOnly } from '../../utils/validators';
 
 export default function ProductForm() {
   const [productForm, setProductForm] = useAtom(productFormAtom);
@@ -67,11 +68,8 @@ export default function ProductForm() {
               value={productForm.price === 0 ? '' : productForm.price}
               onChange={(e) => {
                 const { value } = e.target;
-                if (value === '' || /^\d+$/.test(value)) {
-                  setProductForm({
-                    ...productForm,
-                    price: value === '' ? 0 : parseInt(value),
-                  });
+                if (value === '' || isDigitsOnly(value)) {
+                  setProductForm({ ...productForm, price: value === '' ? 0 : parseInt(value) });
                 }
               }}
               onBlur={(e) => {
@@ -93,15 +91,9 @@ export default function ProductForm() {
             <input
               type='text'
               value={productForm.stock === 0 ? '' : productForm.stock}
-              onChange={(e) => {
-                const { value } = e.target;
-                if (value === '' || /^\d+$/.test(value)) {
-                  setProductForm({
-                    ...productForm,
-                    stock: value === '' ? 0 : parseInt(value),
-                  });
-                }
-              }}
+              onChange={(e) =>
+                setProductForm({ ...productForm, stock: parseIntOrZero(e.target.value) })
+              }
               onBlur={(e) => {
                 const { value } = e.target;
                 if (value === '') {
